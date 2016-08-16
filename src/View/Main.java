@@ -20,7 +20,7 @@ public class Main {
         porta = input.nextInt();
         Controller controller = new Controller(ip, porta);
         controller.iniciar();
-        while(input.hasNext()){
+        while(input.hasNextLine()){
             controller.RecebeMsgUsuario(input.nextLine());
         }
     }

@@ -42,7 +42,7 @@ public class Cliente implements Runnable {
             CarregarDadosLogIn();
             CarregarDadosArquivos();
             Menu(0);
-            while (entradaServidor.hasNext()) {
+            while (entradaServidor.hasNextLine()) {
                 RecebeMsgServidor(entradaServidor.nextLine());
             }
         } catch (IllegalArgumentException ex) {
