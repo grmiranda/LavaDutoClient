@@ -20,11 +20,13 @@ public class Cliente implements Runnable {
     private String ipServidor;                              // Ip do servidor   
     private int portaServidor;                              // Porta de conexão com o servidor
     private final String dirCacheUsuario = "cacheUser.ld";  // String contendo o diretório do arquivo de cache de usuarios
+    private String dirCacheArquivo = "cacheArq.ld";         // String contendo o diretório do arquivo de cache de arquivos
     private int menuAtual;                                  // Variável de controle sobre estado do sistema
     private Scanner entradaServidor;
     private PrintStream saidaServidor;
     private int auxLogInECadastro = 0;
     private String email, senha;
+
 
     public Cliente(String ipServidor, int portaServidor) {
         this.ipServidor = ipServidor;
@@ -37,17 +39,20 @@ public class Cliente implements Runnable {
             socketServidor = new Socket(ipServidor, portaServidor);
             entradaServidor = new Scanner(socketServidor.getInputStream());
             saidaServidor = new PrintStream(socketServidor.getOutputStream());
+            CarregarDadosLogIn();
+            CarregarDadosArquivos();
             Menu(0);
             while (entradaServidor.hasNext()) {
                 RecebeMsgServidor(entradaServidor.nextLine());
             }
-
         } catch (IllegalArgumentException ex) {
             System.out.println("Número de porta Inválido");
         } catch (SocketException ex) {
             System.out.println("Servidor Offline");
         } catch (IOException ex) {
             System.out.println("Erro Grave");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -81,7 +86,6 @@ public class Cliente implements Runnable {
                 } else if (auxLogInECadastro == 1) {
                     senha = msg;
                     auxLogInECadastro--;
-                    CarregarDadosLogIn();
                     Usuario aux = new Usuario(email, senha);
                     if (usuarios.contains(aux)) {
                         saidaServidor.print("#07:" + email);
@@ -111,7 +115,7 @@ public class Cliente implements Runnable {
         }
     }
 
-    private void RecebeMsgServidor(String msg) {
+    private void RecebeMsgServidor(String msg) throws IOException {
         String[] mensagem = msg.split(":");
         /*  
             Codigos:
@@ -130,6 +134,11 @@ public class Cliente implements Runnable {
             case 1:
                 if (mensagem[0].equals("#05")) {
                     System.out.println("Log in realizado com sucesso");
+                    Usuario aux = new Usuario(email, senha);
+                    if (!usuarios.contains(aux)) {
+                        usuarios.add(aux);
+                    }
+                    SalvarDadosLogIn();
                     Menu(3);
                 } else if (mensagem[0].equals("#06")) {
                     if (mensagem[1].equals("0")) {
@@ -151,7 +160,7 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação 
             case 3:
-                
+
                 break;
             // Tratamento para o Menu do Arquivo
             case 4:
@@ -192,8 +201,12 @@ public class Cliente implements Runnable {
                 System.out.println("-----------------------------------------------");
                 System.out.println("Lista de Arquivos");
                 System.out.println("-----------------------------------------------");
-                for (Arquivo arq : arquivos) {
-                    System.out.println(arq.getName());
+                if (!arquivos.isEmpty()) {
+                    for (Arquivo arq : arquivos) {
+                        System.out.println(arq.getName());
+                    }
+                } else {
+                    System.out.println("Não existem arquivos");
                 }
                 System.out.println("-----------------------------------------------");
                 System.out.println("( abrir + nome do arquivo) Abrir um Arquivo");
@@ -220,4 +233,20 @@ public class Cliente implements Runnable {
         }
     }
 
+    public void CarregarDadosArquivos() throws IOException, ClassNotFoundException {
+        try {
+            arquivos = (ArrayList<Arquivo>) Sistema.CarregarSistema(dirCacheArquivo);
+        } catch (FileNotFoundException ex) {
+            arquivos = new ArrayList<Arquivo>();
+            Sistema.SalvarSistema(arquivos, dirCacheArquivo);
+        }
+    }
+
+    public void SalvarDadosLogIn() throws IOException{
+        Sistema.SalvarSistema(usuarios, dirCacheUsuario);
+    }
+    
+    public void SalvarDadosArquivos() throws IOException{
+        Sistema.SalvarSistema(arquivos, dirCacheArquivo);
+    }
 }
