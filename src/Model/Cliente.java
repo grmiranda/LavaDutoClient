@@ -1,6 +1,7 @@
 package Model;
 
 import Model.Util.Sistema;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -31,6 +32,11 @@ public class Cliente implements Runnable {
     public Cliente(String ipServidor, int portaServidor) {
         this.ipServidor = ipServidor;
         this.portaServidor = portaServidor;
+        
+        //adicionando a pasta compartilhada
+        File f = new File("Compartilhados");
+        if (!f.exists())
+            f.mkdir();
     }
 
     @Override
@@ -75,6 +81,7 @@ public class Cliente implements Runnable {
                         break;
                     case "2":
                         Menu(2);
+                        break;
                 }
                 break;
             // Tratamento para o Log in
@@ -89,6 +96,7 @@ public class Cliente implements Runnable {
                     Usuario aux = new Usuario(email, senha);
                     if (usuarios.contains(aux)) {
                         saidaServidor.println("#07:" + email);
+                        Menu(3);
                     } else {
                         saidaServidor.println("#04:" + email + ":" + senha);
                     }
@@ -99,6 +107,7 @@ public class Cliente implements Runnable {
                 if (auxLogInECadastro == 0) {
                     email = msg;
                     auxLogInECadastro++;
+                    Menu(2);
                 } else if (auxLogInECadastro == 1) {
                     senha = msg;
                     auxLogInECadastro--;
@@ -107,6 +116,12 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação    
             case 3:
+                switch(msg){
+                    case "sair":
+                        saidaServidor.println("#09");
+                        Menu(0);
+                        break;
+                }
                 break;
             // Tratamento para o Menu do Arquivo
             case 4:
@@ -153,6 +168,9 @@ public class Cliente implements Runnable {
             case 2:
                 if (mensagem[0].equals("#02")) {
                     System.out.println("Usuário cadastrado:" + email);
+                    Usuario aux = new Usuario(email, senha);
+                    usuarios.add(aux);
+                    SalvarDadosLogIn();
                 } else if (mensagem[0].equals("#03")) {
                     System.out.println("Email já cadastrado");
                 }
