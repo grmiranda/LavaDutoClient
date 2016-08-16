@@ -28,15 +28,27 @@ public class Cliente implements Runnable {
     private int auxLogInECadastro = 0;
     private String email, senha;
 
-
     public Cliente(String ipServidor, int portaServidor) {
         this.ipServidor = ipServidor;
         this.portaServidor = portaServidor;
-        
+
         //adicionando a pasta compartilhada
         File f = new File("Compartilhados");
-        if (!f.exists())
+        if (!f.exists()) {
             f.mkdir();
+        }
+    }
+
+    private void enviarLista() {
+        File f = new File("Compartilhados");
+        String[] arqs = f.list();
+        String lista = "#15:" + arqs.length;
+
+        for (String s : arqs) {
+            lista = lista + ":" + s;
+        }
+
+        saidaServidor.println(lista);
     }
 
     @Override
@@ -64,13 +76,13 @@ public class Cliente implements Runnable {
 
     public void RecebeMsgUsuario(String msg) throws IOException, ClassNotFoundException {
         /*  
-            Codigos:
-            #01 - CADASTRO
-            #04 - LOG IN NORMAL
-            #07 - LOG IN CACHE
-            #08 - ATUALIZAR ARQUIVOS
-            #09 - DESLOGAR
-            #15 - LISTA DE ARQUIVOS
+         Codigos:
+         #01 - CADASTRO
+         #04 - LOG IN NORMAL
+         #07 - LOG IN CACHE
+         #08 - ATUALIZAR ARQUIVOS
+         #09 - DESLOGAR
+         #15 - LISTA DE ARQUIVOS
          */
         switch (menuAtual) {
             // Tratamento para o Menu Inicial
@@ -116,7 +128,11 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação    
             case 3:
-                switch(msg){
+                switch (msg) {
+                    case "atualizar":
+                        enviarLista();
+                        Menu(3);
+                        break;
                     case "sair":
                         saidaServidor.println("#09");
                         Menu(0);
@@ -133,12 +149,12 @@ public class Cliente implements Runnable {
     private void RecebeMsgServidor(String msg) throws IOException {
         String[] mensagem = msg.split(":");
         /*  
-            Codigos:
-            #02 - CADASTRO SUCESSO
-            #03 - CADASTRO ERRO
-            #05 - LOG IN SUCESSO 
-            #06 - LOG IN ERRO (0 - DADOS INVÁLIDOS / 1 - USUÁRIO LOGADO)
-            #14 - MANDAR ARQUIVOS
+         Codigos:
+         #02 - CADASTRO SUCESSO
+         #03 - CADASTRO ERRO
+         #05 - LOG IN SUCESSO 
+         #06 - LOG IN ERRO (0 - DADOS INVÁLIDOS / 1 - USUÁRIO LOGADO)
+         #14 - MANDAR ARQUIVOS
          */
 
         switch (menuAtual) {
@@ -260,11 +276,11 @@ public class Cliente implements Runnable {
         }
     }
 
-    public void SalvarDadosLogIn() throws IOException{
+    public void SalvarDadosLogIn() throws IOException {
         Sistema.SalvarSistema(usuarios, dirCacheUsuario);
     }
-    
-    public void SalvarDadosArquivos() throws IOException{
+
+    public void SalvarDadosArquivos() throws IOException {
         Sistema.SalvarSistema(arquivos, dirCacheArquivo);
     }
 }
