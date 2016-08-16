@@ -88,9 +88,9 @@ public class Cliente implements Runnable {
                     auxLogInECadastro--;
                     Usuario aux = new Usuario(email, senha);
                     if (usuarios.contains(aux)) {
-                        saidaServidor.print("#07:" + email);
+                        saidaServidor.println("#07:" + email);
                     } else {
-                        saidaServidor.print("#04:" + email + ":" + senha);
+                        saidaServidor.println("#04:" + email + ":" + senha);
                     }
                 }
                 break;
@@ -102,7 +102,7 @@ public class Cliente implements Runnable {
                 } else if (auxLogInECadastro == 1) {
                     senha = msg;
                     auxLogInECadastro--;
-                    saidaServidor.print("#01:" + email + ":" + senha);
+                    saidaServidor.println("#01:" + email + ":" + senha);
                 }
                 break;
             // Tratamento para o Menu de Navegação    
