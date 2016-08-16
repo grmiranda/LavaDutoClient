@@ -129,9 +129,9 @@ public class Cliente implements Runnable {
             // Tratamento para o Menu de Navegação    
             case 3:
                 switch (msg) {
-                    case "atualizar":
+                    case "enviar":
                         enviarLista();
-                        Menu(3);
+                        System.out.println("Lista de arquivos enviada");
                         break;
                     case "sair":
                         saidaServidor.println("#09");
@@ -245,6 +245,7 @@ public class Cliente implements Runnable {
                 System.out.println("-----------------------------------------------");
                 System.out.println("( abrir + nome do arquivo) Abrir um Arquivo");
                 System.out.println("( atualizar ) Para atualizar a lista de arquivos");
+                System.out.println("( enviar) Para enviar a sua lista de arquivos");
                 System.out.println("( sair ) Deslogar do sistema");
                 System.out.println("-----------------------------------------------");
                 break;
