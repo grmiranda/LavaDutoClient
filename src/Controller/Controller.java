@@ -16,7 +16,7 @@ public class Controller {
 
     public void iniciar() {
         cliente = new Cliente(ip, porta);
-        cliente.run();
+        new Thread(cliente).start();
     }
 
     public void RecebeMsgUsuario(String msg) throws IOException, ClassNotFoundException {

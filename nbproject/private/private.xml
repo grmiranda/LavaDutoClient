@@ -3,11 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+<<<<<<< HEAD
             <file>file:/C:/Users/grmir/Documents/Programas/JAVA/PBL%202/LavaDutoClient/src/Controller/Controller.java</file>
             <file>file:/C:/Users/grmir/Documents/Programas/JAVA/PBL%202/LavaDutoClient/src/Model/Cliente.java</file>
             <file>file:/C:/Users/grmir/Documents/Programas/JAVA/PBL%202/LavaDutoClient/src/View/Main.java</file>
             <file>file:/C:/Users/grmir/Documents/Programas/JAVA/PBL%202/LavaDutoClient/src/Model/Util/Sistema.java</file>
             <file>file:/C:/Users/grmir/Documents/Programas/JAVA/PBL%202/LavaDutoClient/src/Model/Usuario.java</file>
+=======
+            <file>file:/C:/Users/Havallon/Desktop/PBL%202/LavaDutoClient/src/Model/Cliente.java</file>
+>>>>>>> 9fc3ad909e37ae11ab8a74fcab5c169878008927
         </group>
     </open-files>
 </project-private>
