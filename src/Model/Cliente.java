@@ -164,7 +164,7 @@ public class Cliente implements Runnable {
                             if (origens.size() == 1){
                                 socketCliente = new Socket(origens.get(0), portaServidor+1);
                                 PrintStream ps = new PrintStream(socketCliente.getOutputStream());
-                                ps.println("#11" + arquivoSelecionado);
+                                ps.println("#11:" + arquivoSelecionado);
                                 Scanner sc = new Scanner(socketCliente.getInputStream());
                                 String m = sc.nextLine();
                                 switch (m){
