@@ -35,6 +35,9 @@ public class Sistema {
     public static Object CarregarSistema(String diretorio) throws IOException, ClassNotFoundException {
         FileInputStream fis = new FileInputStream(diretorio);
         ObjectInputStream ois = new ObjectInputStream(fis);
-        return ois.readObject();
+        Object ob = ois.readObject();
+        ois.close();
+        fis.close();
+        return ob;
     }
 }

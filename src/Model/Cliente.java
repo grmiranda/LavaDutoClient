@@ -21,7 +21,7 @@ public class Cliente implements Runnable {
     private String ipServidor;                              // Ip do servidor   
     private int portaServidor;                              // Porta de conexão com o servidor
     private final String dirCacheUsuario = "cacheUser.ld";  // String contendo o diretório do arquivo de cache de usuarios
-    private String dirCacheArquivo = "cacheArq.ld";         // String contendo o diretório do arquivo de cache de arquivos
+    private final String dirCacheArquivo = "cacheArq.ld";         // String contendo o diretório do arquivo de cache de arquivos
     private int menuAtual;                                  // Variável de controle sobre estado do sistema
     private Scanner entradaServidor;
     private PrintStream saidaServidor;
@@ -205,12 +205,12 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação 
             case 3:
-                if(mensagem[0].equals("#14")){
+                if (mensagem[0].equals("#14")) {
                     int quantidade = Integer.parseInt(mensagem[1]);
                     int i, posNome = 2, posIp = 3;
                     String nome, ip;
                     arquivos.clear();
-                    for(i = 0; i < quantidade; i++){
+                    for (i = 0; i < quantidade; i++) {
                         nome = mensagem[posNome];
                         ip = mensagem[posIp];
                         Arquivo aux = new Arquivo(nome, ip);
@@ -218,7 +218,11 @@ public class Cliente implements Runnable {
                         posNome += 2;
                         posIp += 2;
                     }
+                    SalvarDadosArquivos();
                     Menu(3);
+                } else if (mensagem[0].equals("#06")) {
+                    System.out.println("Usuario já está logado");
+                    Menu(0);
                 }
                 break;
             // Tratamento para o Menu do Arquivo

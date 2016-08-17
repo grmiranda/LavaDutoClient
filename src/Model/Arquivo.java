@@ -1,8 +1,9 @@
 package Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Arquivo {
+public class Arquivo implements Serializable {
 
     private final String name;
     private ArrayList<String> ipOrigem = new ArrayList<>();
