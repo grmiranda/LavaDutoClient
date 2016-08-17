@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClienteServidor implements Runnable {
 
-    private Socket cliente;
-    private Servidor servidor;
+    private final Socket cliente;
+    private final Servidor servidor;
     
     ClienteServidor(Socket cliente, Servidor servidor) {
         this.cliente = cliente;

@@ -43,6 +43,7 @@ public class Servidor implements Runnable {
         
         f.delete();
         cliente.enviarMensagem("#16");
+        Cliente.enviarLista();
     }
     
     public void recebeMsgCliente(String msg, ClienteServidor cliente) throws IOException{

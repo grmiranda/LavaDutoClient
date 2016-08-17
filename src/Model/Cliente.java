@@ -24,7 +24,7 @@ public class Cliente implements Runnable {
     private final String dirCacheArquivo = "cacheArq.ld";         // String contendo o diretório do arquivo de cache de arquivos
     private int menuAtual;                                  // Variável de controle sobre estado do sistema
     private Scanner entradaServidor;
-    private PrintStream saidaServidor;
+    private static PrintStream saidaServidor;
     private int auxLogInECadastro = 0;
     private String email, senha;
     private String arquivoSelecionado;
@@ -39,8 +39,8 @@ public class Cliente implements Runnable {
             f.mkdir();
         }
     }
-
-    private void enviarLista() {
+    
+    public static void enviarLista() {
         File f = new File("Compartilhados");
         String[] arqs = f.list();
         String lista = "#15:" + arqs.length;
