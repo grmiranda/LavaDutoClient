@@ -27,6 +27,7 @@ public class Cliente implements Runnable {
     private PrintStream saidaServidor;
     private int auxLogInECadastro = 0;
     private String email, senha;
+    private String arquivoSelecionado;
 
     public Cliente(String ipServidor, int portaServidor) {
         this.ipServidor = ipServidor;
@@ -59,6 +60,7 @@ public class Cliente implements Runnable {
             saidaServidor = new PrintStream(socketServidor.getOutputStream());
             CarregarDadosLogIn();
             CarregarDadosArquivos();
+            enviarLista();
             Menu(0);
             while (entradaServidor.hasNextLine()) {
                 RecebeMsgServidor(entradaServidor.nextLine());
@@ -128,10 +130,19 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação    
             case 3:
-                switch (msg) {
+                String aux[] = msg.split(" ");
+                switch (aux[0]) {
+                    case "abrir":
+                        arquivoSelecionado = aux[1];
+                        Menu(4);
+                        break;
+                    case "atualizar":
+                        saidaServidor.println("#08");
+                        break;
                     case "enviar":
                         enviarLista();
                         System.out.println("Lista de arquivos enviada");
+                        Menu(3);
                         break;
                     case "sair":
                         saidaServidor.println("#09");
@@ -194,7 +205,21 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação 
             case 3:
-
+                if(mensagem[0].equals("#14")){
+                    int quantidade = Integer.parseInt(mensagem[1]);
+                    int i, posNome = 2, posIp = 3;
+                    String nome, ip;
+                    arquivos.clear();
+                    for(i = 0; i < quantidade; i++){
+                        nome = mensagem[posNome];
+                        ip = mensagem[posIp];
+                        Arquivo aux = new Arquivo(nome, ip);
+                        arquivos.add(aux);
+                        posNome += 2;
+                        posIp += 2;
+                    }
+                    Menu(3);
+                }
                 break;
             // Tratamento para o Menu do Arquivo
             case 4:
