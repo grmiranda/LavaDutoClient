@@ -130,7 +130,7 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação    
             case 3:
-                String aux[] = msg.split(" ");
+                String aux[] = msg.split(" ", 2);
                 switch (aux[0]) {
                     case "abrir":
                         arquivoSelecionado = aux[1];
@@ -152,11 +152,57 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu do Arquivo
             case 4:
+                switch(msg){
+                    case "1":
+                        break;
+                    case "2":
+                        ArrayList<String> origens = buscarOrigem(arquivoSelecionado);
+                        if (origens == null){
+                            System.out.println("Arquivo não encontrado");
+                            Menu(3);
+                        } else{
+                            if (origens.size() == 1){
+                                socketCliente = new Socket(origens.get(0), portaServidor+1);
+                                PrintStream ps = new PrintStream(socketCliente.getOutputStream());
+                                ps.println("#11" + arquivoSelecionado);
+                                Scanner sc = new Scanner(socketCliente.getInputStream());
+                                String m = sc.nextLine();
+                                switch (m){
+                                    case "#13":
+                                        System.out.println("Você nao pode remover o arquivo no momento");
+                                        break;
+                                    case "#12":
+                                        System.out.println("Arquivo não encontrado");
+                                        System.out.println("Atualize a sua lista");
+                                        break;
+                                    case "#16":
+                                        System.out.println("Arquivo deletado");
+                                        System.out.println("Atualize a sua lista");
+                                        break;
+                                }
+                                socketCliente.close();
+                                Menu(3);
+                            }
+                        }
+                        break;
+                    case "3":
+                        arquivoSelecionado = "";
+                        Menu(3);
+                        break;
+                }
                 break;
 
         }
     }
-
+    
+    private ArrayList<String> buscarOrigem(String nome){
+        for (Arquivo arq : arquivos){
+            if(arq.getName().equals(nome))
+                return arq.getIpOrigem();
+        }
+        return null;
+    }
+    
     private void RecebeMsgServidor(String msg) throws IOException {
         String[] mensagem = msg.split(":");
         /*  
@@ -283,6 +329,7 @@ public class Cliente implements Runnable {
                 System.out.println("-----------------------------------------------");
                 System.out.println("( 1 ) Download");
                 System.out.println("( 2 ) Excluir arquivo");
+                System.out.println("( 3 ) Voltar");
                 System.out.println("-----------------------------------------------");
                 break;
         }
