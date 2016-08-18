@@ -26,7 +26,11 @@ public class ClienteServidor implements Runnable {
             
         }
     }
-
+    
+    public Socket getSocket(){
+        return cliente;
+    }
+    
     public void enviarMensagem(String msg) throws IOException{
         PrintStream output = new PrintStream(cliente.getOutputStream());
         output.println(msg);
