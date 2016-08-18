@@ -46,11 +46,15 @@ public class Servidor implements Runnable {
 
         f.delete();
         cliente.enviarMensagem("#16");
+        try {
+            Thread.currentThread().sleep(100);
+        } catch (InterruptedException ex) {
+        }
         Cliente.enviarLista();
     }
 
     private void enviarArq(String nome, ClienteServidor cliente) throws IOException {
-        
+
         File f = new File("Compartilhados/" + nome);
 
         if (!f.exists()) {
@@ -65,6 +69,12 @@ public class Servidor implements Runnable {
         PrintStream ps = new PrintStream(out);
         ps.println("#17:" + f.length());
         int lidos = -1;
+
+        try {
+            Thread.currentThread().sleep(300);
+        } catch (InterruptedException ex) {
+        }
+
         while ((lidos = fis.read(conteudo, 0, buffer)) > 0) {
             out.write(conteudo, 0, lidos);
         }

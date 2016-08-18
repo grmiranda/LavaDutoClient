@@ -42,8 +42,9 @@ public class Cliente implements Runnable {
             f.mkdir();
         }
         f = new File("Downloads");
-        if (!f.exists())
+        if (!f.exists()) {
             f.mkdir();
+        }
     }
 
     public static void enviarLista() {
@@ -161,21 +162,21 @@ public class Cliente implements Runnable {
                 switch (msg) {
                     case "1":
                         origens = buscarOrigem(arquivoSelecionado);
-                        if (origens == null){
+                        if (origens == null) {
                             System.out.println("Arquivo nao encontrado");
                             Menu(3);
-                        } else if (origens.size() == 1){
+                        } else if (origens.size() == 1) {
                             socketCliente = new Socket(origens.get(0), portaServidor + 1);
                             PrintStream ps = new PrintStream(socketCliente.getOutputStream());
-                            ps.println("#10:"+arquivoSelecionado);
+                            ps.println("#10:" + arquivoSelecionado);
                             Scanner sc = new Scanner(socketCliente.getInputStream());
                             String m = sc.nextLine();
                             String[] info = m.split(":");
-                            if (info[0].equals("#12")){
+                            if (info[0].equals("#12")) {
                                 System.out.println("Arquivo nao encontrado");
                                 System.out.println("Atualize sua lista");
                                 Menu(3);
-                            } else if (info[0].equals("#17")){
+                            } else if (info[0].equals("#17")) {
                                 long tam = Long.parseLong(info[1]);
                                 long size = 0;
                                 int lidos = -1;
@@ -183,19 +184,23 @@ public class Cliente implements Runnable {
                                 byte conteudo[] = new byte[buffer];
                                 FileOutputStream fos = new FileOutputStream("Downloads/" + arquivoSelecionado);
                                 InputStream is = socketCliente.getInputStream();
-                                
-                                while ((lidos = is.read(conteudo, 0, buffer)) > 0){
+
+                                while ((lidos = is.read(conteudo, 0, buffer)) > 0) {
                                     fos.write(conteudo, 0, lidos);
                                     size = size + lidos;
-                                    if (size == tam)
+                                    if (size == tam) {
                                         break;
+                                    }
                                 }
-                                
+
                                 fos.flush();
                                 fos.close();
                                 socketCliente.close();
                                 System.out.println("Arquivo baixado com sucesso");
+                                Menu(3);
                             }
+                        } else {
+                            Menu(6);
                         }
                         break;
                     case "2":
@@ -235,7 +240,7 @@ public class Cliente implements Runnable {
                 }
                 break;
             case 5:
-                socketCliente = new Socket(origens.get(Integer.parseInt(msg)-1), portaServidor + 1);
+                socketCliente = new Socket(origens.get(Integer.parseInt(msg) - 1), portaServidor + 1);
                 PrintStream ps = new PrintStream(socketCliente.getOutputStream());
                 ps.println("#11:" + arquivoSelecionado);
                 Scanner sc = new Scanner(socketCliente.getInputStream());
@@ -255,6 +260,41 @@ public class Cliente implements Runnable {
                 }
                 socketCliente.close();
                 Menu(3);
+                break;
+            case 6:
+                socketCliente = new Socket(origens.get(Integer.parseInt(msg) - 1), portaServidor + 1);
+                ps = new PrintStream(socketCliente.getOutputStream());
+                ps.println("#10:" + arquivoSelecionado);
+                sc = new Scanner(socketCliente.getInputStream());
+                m = sc.nextLine();
+                String[] info = m.split(":");
+                if (info[0].equals("#12")) {
+                    System.out.println("Arquivo nao encontrado");
+                    System.out.println("Atualize sua lista");
+                    Menu(3);
+                } else if (info[0].equals("#17")) {
+                    long tam = Long.parseLong(info[1]);
+                    long size = 0;
+                    int lidos = -1;
+                    int buffer = 5120;
+                    byte conteudo[] = new byte[buffer];
+                    FileOutputStream fos = new FileOutputStream("Downloads/" + arquivoSelecionado);
+                    InputStream is = socketCliente.getInputStream();
+
+                    while ((lidos = is.read(conteudo, 0, buffer)) > 0) {
+                        fos.write(conteudo, 0, lidos);
+                        size = size + lidos;
+                        if (size == tam) {
+                            break;
+                        }
+                    }
+
+                    fos.flush();
+                    fos.close();
+                    socketCliente.close();
+                    System.out.println("Arquivo baixado com sucesso");
+                    Menu(3);
+                }
                 break;
         }
     }
@@ -398,20 +438,22 @@ public class Cliente implements Runnable {
                 System.out.println("-----------------------------------------------");
                 break;
             case 5:
+                menuAtual = 5;
                 int i = 1;
                 System.out.println("-----------------------------------------------");
                 System.out.println("Selecione o Ip de onde deseja excluir");
-                for(String ip : origens){
+                for (String ip : origens) {
                     System.out.println("( " + i + " )" + ip);
                     i++;
                 }
                 System.out.println("-----------------------------------------------");
                 break;
             case 6:
+                menuAtual = 6;
                 int j = 1;
                 System.out.println("-----------------------------------------------");
                 System.out.println("Selecione o Ip de onde deseja baixar");
-                for(String ip : origens){
+                for (String ip : origens) {
                     System.out.println("( " + j + " )" + ip);
                     j++;
                 }
