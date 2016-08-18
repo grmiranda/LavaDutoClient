@@ -28,6 +28,7 @@ public class Cliente implements Runnable {
     private int auxLogInECadastro = 0;
     private String email, senha;
     private String arquivoSelecionado;
+    private ArrayList<String> origens;
 
     public Cliente(String ipServidor, int portaServidor) {
         this.ipServidor = ipServidor;
@@ -39,7 +40,7 @@ public class Cliente implements Runnable {
             f.mkdir();
         }
     }
-    
+
     public static void enviarLista() {
         File f = new File("Compartilhados");
         String[] arqs = f.list();
@@ -152,37 +153,37 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu do Arquivo
             case 4:
-                switch(msg){
+                switch (msg) {
                     case "1":
                         break;
                     case "2":
-                        ArrayList<String> origens = buscarOrigem(arquivoSelecionado);
-                        if (origens == null){
+                        origens = buscarOrigem(arquivoSelecionado);
+                        if (origens == null) {
                             System.out.println("Arquivo não encontrado");
                             Menu(3);
-                        } else{
-                            if (origens.size() == 1){
-                                socketCliente = new Socket(origens.get(0), portaServidor+1);
-                                PrintStream ps = new PrintStream(socketCliente.getOutputStream());
-                                ps.println("#11:" + arquivoSelecionado);
-                                Scanner sc = new Scanner(socketCliente.getInputStream());
-                                String m = sc.nextLine();
-                                switch (m){
-                                    case "#13":
-                                        System.out.println("Você nao pode remover o arquivo no momento");
-                                        break;
-                                    case "#12":
-                                        System.out.println("Arquivo não encontrado");
-                                        System.out.println("Atualize a sua lista");
-                                        break;
-                                    case "#16":
-                                        System.out.println("Arquivo deletado");
-                                        System.out.println("Atualize a sua lista");
-                                        break;
-                                }
-                                socketCliente.close();
-                                Menu(3);
+                        } else if (origens.size() == 1) {
+                            socketCliente = new Socket(origens.get(0), portaServidor + 1);
+                            PrintStream ps = new PrintStream(socketCliente.getOutputStream());
+                            ps.println("#11:" + arquivoSelecionado);
+                            Scanner sc = new Scanner(socketCliente.getInputStream());
+                            String m = sc.nextLine();
+                            switch (m) {
+                                case "#13":
+                                    System.out.println("Você nao pode remover o arquivo no momento");
+                                    break;
+                                case "#12":
+                                    System.out.println("Arquivo não encontrado");
+                                    System.out.println("Atualize a sua lista");
+                                    break;
+                                case "#16":
+                                    System.out.println("Arquivo deletado");
+                                    System.out.println("Atualize a sua lista");
+                                    break;
                             }
+                            socketCliente.close();
+                            Menu(3);
+                        } else {
+                            Menu(5);
                         }
                         break;
                     case "3":
@@ -191,18 +192,40 @@ public class Cliente implements Runnable {
                         break;
                 }
                 break;
-
+            case 5:
+                socketCliente = new Socket(origens.get(Integer.parseInt(msg)-1), portaServidor + 1);
+                PrintStream ps = new PrintStream(socketCliente.getOutputStream());
+                ps.println("#11:" + arquivoSelecionado);
+                Scanner sc = new Scanner(socketCliente.getInputStream());
+                String m = sc.nextLine();
+                switch (m) {
+                    case "#13":
+                        System.out.println("Você nao pode remover o arquivo no momento");
+                        break;
+                    case "#12":
+                        System.out.println("Arquivo não encontrado");
+                        System.out.println("Atualize a sua lista");
+                        break;
+                    case "#16":
+                        System.out.println("Arquivo deletado");
+                        System.out.println("Atualize a sua lista");
+                        break;
+                }
+                socketCliente.close();
+                Menu(3);
+                break;
         }
     }
-    
-    private ArrayList<String> buscarOrigem(String nome){
-        for (Arquivo arq : arquivos){
-            if(arq.getName().equals(nome))
+
+    private ArrayList<String> buscarOrigem(String nome) {
+        for (Arquivo arq : arquivos) {
+            if (arq.getName().equals(nome)) {
                 return arq.getIpOrigem();
+            }
         }
         return null;
     }
-    
+
     private void RecebeMsgServidor(String msg) throws IOException {
         String[] mensagem = msg.split(":");
         /*  
@@ -330,6 +353,16 @@ public class Cliente implements Runnable {
                 System.out.println("( 1 ) Download");
                 System.out.println("( 2 ) Excluir arquivo");
                 System.out.println("( 3 ) Voltar");
+                System.out.println("-----------------------------------------------");
+                break;
+            case 5:
+                int i = 1;
+                System.out.println("-----------------------------------------------");
+                System.out.println("Selecione o Ip de onde deseja baixar");
+                for(String ip : origens){
+                    System.out.println("( " + i + " )" + ip);
+                    i++;
+                }
                 System.out.println("-----------------------------------------------");
                 break;
         }
