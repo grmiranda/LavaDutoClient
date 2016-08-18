@@ -41,6 +41,9 @@ public class Cliente implements Runnable {
         if (!f.exists()) {
             f.mkdir();
         }
+        f = new File("Downloads");
+        if (!f.exists())
+            f.mkdir();
     }
 
     public static void enviarLista() {
@@ -178,11 +181,12 @@ public class Cliente implements Runnable {
                                 int lidos = -1;
                                 int buffer = 5120;
                                 byte conteudo[] = new byte[buffer];
-                                FileOutputStream fos = new FileOutputStream("Compartilhados/" + arquivoSelecionado);
+                                FileOutputStream fos = new FileOutputStream("Downloads/" + arquivoSelecionado);
                                 InputStream is = socketCliente.getInputStream();
                                 
                                 while ((lidos = is.read(conteudo, 0, buffer)) > 0){
                                     fos.write(conteudo, 0, lidos);
+                                    size = size + lidos;
                                     if (size == tam)
                                         break;
                                 }
