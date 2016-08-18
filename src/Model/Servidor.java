@@ -3,7 +3,6 @@ package Model;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -51,17 +50,14 @@ public class Servidor implements Runnable {
     }
 
     private void enviarArq(String nome, ClienteServidor cliente) throws IOException {
-        if (arqOcupados.contains(nome)) {
-            cliente.enviarMensagem("#13");
-            return;
-        }
+        
         File f = new File("Compartilhados/" + nome);
 
         if (!f.exists()) {
             cliente.enviarMensagem("#12");
             return;
         }
-
+        arqOcupados.add(nome);
         int buffer = 5120;
         byte[] conteudo = new byte[buffer];
         FileInputStream fis = new FileInputStream(f);
@@ -72,6 +68,7 @@ public class Servidor implements Runnable {
         while ((lidos = fis.read(conteudo, 0, buffer)) > 0) {
             out.write(conteudo, 0, lidos);
         }
+        arqOcupados.remove(nome);
         out.flush();
         fis.close();
     }

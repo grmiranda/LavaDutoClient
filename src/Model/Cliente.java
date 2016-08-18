@@ -3,7 +3,9 @@ package Model;
 import Model.Util.Sistema;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
@@ -155,6 +157,42 @@ public class Cliente implements Runnable {
             case 4:
                 switch (msg) {
                     case "1":
+                        origens = buscarOrigem(arquivoSelecionado);
+                        if (origens == null){
+                            System.out.println("Arquivo nao encontrado");
+                            Menu(3);
+                        } else if (origens.size() == 1){
+                            socketCliente = new Socket(origens.get(0), portaServidor + 1);
+                            PrintStream ps = new PrintStream(socketCliente.getOutputStream());
+                            ps.println("#10:"+arquivoSelecionado);
+                            Scanner sc = new Scanner(socketCliente.getInputStream());
+                            String m = sc.nextLine();
+                            String[] info = m.split(":");
+                            if (info[0].equals("#12")){
+                                System.out.println("Arquivo nao encontrado");
+                                System.out.println("Atualize sua lista");
+                                Menu(3);
+                            } else if (info[0].equals("#17")){
+                                long tam = Long.parseLong(info[1]);
+                                long size = 0;
+                                int lidos = -1;
+                                int buffer = 5120;
+                                byte conteudo[] = new byte[buffer];
+                                FileOutputStream fos = new FileOutputStream("Compartilhados/" + arquivoSelecionado);
+                                InputStream is = socketCliente.getInputStream();
+                                
+                                while ((lidos = is.read(conteudo, 0, buffer)) > 0){
+                                    fos.write(conteudo, 0, lidos);
+                                    if (size == tam)
+                                        break;
+                                }
+                                
+                                fos.flush();
+                                fos.close();
+                                socketCliente.close();
+                                System.out.println("Arquivo baixado com sucesso");
+                            }
+                        }
                         break;
                     case "2":
                         origens = buscarOrigem(arquivoSelecionado);
