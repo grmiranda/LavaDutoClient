@@ -358,10 +358,20 @@ public class Cliente implements Runnable {
             case 5:
                 int i = 1;
                 System.out.println("-----------------------------------------------");
-                System.out.println("Selecione o Ip de onde deseja baixar");
+                System.out.println("Selecione o Ip de onde deseja excluir");
                 for(String ip : origens){
                     System.out.println("( " + i + " )" + ip);
                     i++;
+                }
+                System.out.println("-----------------------------------------------");
+                break;
+            case 6:
+                int j = 1;
+                System.out.println("-----------------------------------------------");
+                System.out.println("Selecione o Ip de onde deseja baixar");
+                for(String ip : origens){
+                    System.out.println("( " + j + " )" + ip);
+                    j++;
                 }
                 System.out.println("-----------------------------------------------");
                 break;
