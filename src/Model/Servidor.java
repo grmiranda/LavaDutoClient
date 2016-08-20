@@ -32,7 +32,7 @@ public class Servidor implements Runnable {
         }
     }
 
-    private void removerArq(String nome, ClienteServidor cliente) throws IOException {
+    synchronized private void removerArq(String nome, ClienteServidor cliente) throws IOException {
         if (arqOcupados.contains(nome)) {
             cliente.enviarMensagem("#13");
             return;
