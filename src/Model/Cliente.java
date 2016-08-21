@@ -23,54 +23,55 @@ public class Cliente implements Runnable {
     private String ipServidor;                              // Ip do servidor   
     private int portaServidor;                              // Porta de conexão com o servidor
     private final String dirCacheUsuario = "cacheUser.ld";  // String contendo o diretório do arquivo de cache de usuarios
-    private final String dirCacheArquivo = "cacheArq.ld";         // String contendo o diretório do arquivo de cache de arquivos
+    private final String dirCacheArquivo = "cacheArq.ld";   // String contendo o diretório do arquivo de cache de arquivos
     private int menuAtual;                                  // Variável de controle sobre estado do sistema
-    private Scanner entradaServidor;
-    private static PrintStream saidaServidor;
-    private int auxLogInECadastro = 0;
-    private String email, senha;
-    private String arquivoSelecionado;
-    private ArrayList<String> origens;
+    private Scanner entradaServidor;                        // Scanner de dados vindo do servidor
+    private static PrintStream saidaServidor;               // Objeto para envio de dados para o servidor  
+    private int auxLogInECadastro = 0;                      // Variavel de controle para o menu de Log in e Cadastro
+    private String email, senha;                            // Variaveis para salvar email e senha do usuário
+    private String arquivoSelecionado;                      // Variavel para salvar a seleção de um arquivo
+    private ArrayList<String> origens;                      // Váriavel auxiliar para armazenar os Ips de um arquivo
 
-    public Cliente(String ipServidor, int portaServidor) {
-        this.ipServidor = ipServidor;
-        this.portaServidor = portaServidor;
+    public Cliente(String ipServidor, int portaServidor) {  //construtor
+        this.ipServidor = ipServidor;                       // seta o IP do servidor
+        this.portaServidor = portaServidor;                 // seta a porta do servidor
 
         //adicionando a pasta compartilhada
-        File f = new File("Compartilhados");
+        File f = new File("Compartilhados");                // Verifica e cria a pasta para arquivos compartilhados
         if (!f.exists()) {
             f.mkdir();
         }
-        f = new File("Downloads");
+        f = new File("Downloads");                          // Verifica e cria a pasta de Downloads
         if (!f.exists()) {
             f.mkdir();
         }
     }
 
-    public static void enviarLista() {
-        File f = new File("Compartilhados");
-        String[] arqs = f.list();
-        String lista = "#15:" + arqs.length;
+    public static void enviarLista() {                      // Metodo para enviar a lista de arquivos compartilhados para o servidor
+        File f = new File("Compartilhados");                // Abre a pasta compartilhados
+        String[] arqs = f.list();                           // Recebe os arquivos da pasta  
+        String lista = "#15:" + arqs.length;                // insere o codigo da operação
 
-        for (String s : arqs) {
+        for (String s : arqs) {                             // Loop que monta a string que deve ser enviada para o servidor
             lista = lista + ":" + s;
         }
 
-        saidaServidor.println(lista);
+        saidaServidor.println(lista);                       // Envia a string com os arquivos para o servidor
     }
 
     @Override
-    public void run() {
+    public void run() { // Metodo Run, chamado no inicio da Thread
         try {
+            // prepara os objetos de entrada e saida de dados para o servidor
             socketServidor = new Socket(ipServidor, portaServidor);
             entradaServidor = new Scanner(socketServidor.getInputStream());
             saidaServidor = new PrintStream(socketServidor.getOutputStream());
-            CarregarDadosLogIn();
-            CarregarDadosArquivos();
-            enviarLista();
-            Menu(0);
-            while (entradaServidor.hasNextLine()) {
-                RecebeMsgServidor(entradaServidor.nextLine());
+            CarregarDadosLogIn();                           // Carrega o cache do Log IN
+            CarregarDadosArquivos();                        // Carrega o cache dos Arquivos
+            enviarLista();                                  // Envia a lista de arquivos compartilhados
+            Menu(0);                                        // Printa para o usuário o primeiro menu
+            while (entradaServidor.hasNextLine()) {         // arguarda uma entrada do usuario
+                RecebeMsgServidor(entradaServidor.nextLine());// envia a entrada do usuario para a respectiva função que trata a entada
             }
         } catch (IllegalArgumentException ex) {
             System.out.println("Número de porta Inválido");
@@ -82,7 +83,7 @@ public class Cliente implements Runnable {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    // Metodo responsável por tratar os dados vindo do Usuário analizando o respectivo estado do sistema (menu)
     public void RecebeMsgUsuario(String msg) throws IOException, ClassNotFoundException {
         /*  
          Codigos:
@@ -97,42 +98,42 @@ public class Cliente implements Runnable {
             // Tratamento para o Menu Inicial
             case 0:
                 switch (msg) {
-                    case "1":
-                        Menu(1);
+                    case "1": // Log in
+                        Menu(1); // Abre menu de Log in
                         break;
-                    case "2":
-                        Menu(2);
+                    case "2": // Cadastro
+                        Menu(2); // Abre menu de Cadastro
                         break;
                 }
                 break;
             // Tratamento para o Log in
             case 1:
-                if (auxLogInECadastro == 0) {
-                    email = msg;
-                    auxLogInECadastro++;
-                    Menu(1);
-                } else if (auxLogInECadastro == 1) {
-                    senha = msg;
-                    auxLogInECadastro--;
-                    Usuario aux = new Usuario(email, senha);
-                    if (usuarios.contains(aux)) {
-                        saidaServidor.println("#07:" + email);
-                        Menu(3);
-                    } else {
+                if (auxLogInECadastro == 0) { // variavel de controle
+                    email = msg; // salva email
+                    auxLogInECadastro++; // aumenta variavel
+                    Menu(1); // chama novamente o menu de log in
+                } else if (auxLogInECadastro == 1) { // variavel de controle
+                    senha = msg; // salva a senha
+                    auxLogInECadastro--; // decresce a variavel de controle
+                    Usuario aux = new Usuario(email, senha); // cria o novo usuário
+                    if (usuarios.contains(aux)) { // verifica se o usuario já existe no cache
+                        saidaServidor.println("#07:" + email); // envia a confirmação para o servidor
+                        Menu(3); // abre o menu do usuario
+                    } else { // envia para o servidor a solicitaçã de log in
                         saidaServidor.println("#04:" + email + ":" + senha);
                     }
                 }
                 break;
             // Tratamento para o Cadastro
             case 2:
-                if (auxLogInECadastro == 0) {
-                    email = msg;
-                    auxLogInECadastro++;
-                    Menu(2);
-                } else if (auxLogInECadastro == 1) {
-                    senha = msg;
-                    auxLogInECadastro--;
-                    saidaServidor.println("#01:" + email + ":" + senha);
+                if (auxLogInECadastro == 0) {// variavel de controle
+                    email = msg; // salva email
+                    auxLogInECadastro++;// aumenta variavel
+                    Menu(2);// chama novamente o menu de Caastro
+                } else if (auxLogInECadastro == 1) { //variavel de controle
+                    senha = msg;// salva a senha
+                    auxLogInECadastro--;// decresce a variavel de controle
+                    saidaServidor.println("#01:" + email + ":" + senha); // envia para o servidor os dados para o cadastro
                 }
                 break;
             // Tratamento para o Menu de Navegação    
@@ -160,69 +161,70 @@ public class Cliente implements Runnable {
             // Tratamento para o Menu do Arquivo
             case 4:
                 switch (msg) {
-                    case "1":
-                        origens = buscarOrigem(arquivoSelecionado);
-                        if (origens == null) {
+                    case "1": // download
+                        origens = buscarOrigem(arquivoSelecionado); // recebe a lista de ips para o arquivo selecionado
+                        if (origens == null) { // verifica se existe algum ip registrado naquele arquivo
                             System.out.println("Arquivo nao encontrado");
                             Menu(3);
-                        } else if (origens.size() == 1) {
-                            socketCliente = new Socket(origens.get(0), portaServidor + 1);
+                        } else if (origens.size() == 1) { // se existir um ip
+                            // logica de DOWNLOAD
+                            socketCliente = new Socket(origens.get(0), portaServidor + 1); // cria uma conexão direta com o cliente
                             PrintStream ps = new PrintStream(socketCliente.getOutputStream());
-                            ps.println("#10:" + arquivoSelecionado);
+                            ps.println("#10:" + arquivoSelecionado); // envia para o clinete o codigo e o nome do arquivo desejado
                             Scanner sc = new Scanner(socketCliente.getInputStream());
                             String m = sc.nextLine();
-                            String[] info = m.split(":");
-                            if (info[0].equals("#12")) {
+                            String[] info = m.split(":"); // recebe a resposta do cliente referente ao arquivo escolhido 
+                            if (info[0].equals("#12")) { // caso o arquivo não esteja atualizado
                                 System.out.println("Arquivo nao encontrado");
                                 System.out.println("Atualize sua lista");
                                 Menu(3);
-                            } else if (info[0].equals("#17")) {
-                                long tam = Long.parseLong(info[1]);
-                                long size = 0;
-                                int lidos = -1;
-                                int buffer = 5120;
-                                byte conteudo[] = new byte[buffer];
-                                FileOutputStream fos = new FileOutputStream("Downloads/" + arquivoSelecionado);
+                            } else if (info[0].equals("#17")) { // caso o arquivo existe
+                                long tam = Long.parseLong(info[1]); // recebe o tamanho do arquivo
+                                long size = 0; // controle
+                                int lidos = -1; // variavel de leitura
+                                int buffer = 5120; // tamanho buffer de leitura
+                                byte conteudo[] = new byte[buffer]; // vetor para leitura do arquivo
+                                FileOutputStream fos = new FileOutputStream("Downloads/" + arquivoSelecionado); // cria o arquivo que será salvo
                                 InputStream is = socketCliente.getInputStream();
 
-                                while ((lidos = is.read(conteudo, 0, buffer)) > 0) {
+                                while ((lidos = is.read(conteudo, 0, buffer)) > 0) { // le os dados recebidos e salva no novo arquivo criado
                                     fos.write(conteudo, 0, lidos);
                                     size = size + lidos;
-                                    if (size == tam) {
+                                    if (size == tam) { // controle de quando o tamanho recebido é igual ao tamanho total do arquivo
                                         break;
                                     }
                                 }
 
-                                fos.flush();
+                                fos.flush(); 
                                 fos.close();
-                                socketCliente.close();
+                                socketCliente.close(); // fecha a conexão com o cliente
                                 System.out.println("Arquivo baixado com sucesso");
                                 Menu(3);
                             }
-                        } else {
+                        } else { // abre um menu de seleção de ip caso exista mais de 1 ip para o determinado arquivo
                             Menu(6);
                         }
                         break;
-                    case "2":
-                        origens = buscarOrigem(arquivoSelecionado);
+                    case "2": // excluir aquivo
+                        origens = buscarOrigem(arquivoSelecionado); // verifica a existencia de um ip apra aquele arquivo
                         if (origens == null) {
                             System.out.println("Arquivo não encontrado");
                             Menu(3);
-                        } else if (origens.size() == 1) {
-                            socketCliente = new Socket(origens.get(0), portaServidor + 1);
+                        } else if (origens.size() == 1) { // se existe um ip
+                            socketCliente = new Socket(origens.get(0), portaServidor + 1); // cria a conexão com o cliente
                             PrintStream ps = new PrintStream(socketCliente.getOutputStream());
-                            ps.println("#11:" + arquivoSelecionado);
+                            ps.println("#11:" + arquivoSelecionado); // envia a solicitação de exclusão do arquivo
                             Scanner sc = new Scanner(socketCliente.getInputStream());
-                            String m = sc.nextLine();
+                            String m = sc.nextLine(); // recebe a resposta do cliente referente a soplicitação
                             switch (m) {
-                                case "#13":
+                                case "#13": // caso o arquivo esteja em uso
                                     System.out.println("Você nao pode remover o arquivo no momento");
                                     break;
-                                case "#12":
+                                case "#12": // caso o arquivo não exista mais
                                     System.out.println("Arquivo não encontrado");
                                     System.out.println("Atualize a sua lista");
                                     break;
-                                case "#16":
+                                case "#16": // caso o arquivo tenha sido deletado com sucesso
                                     System.out.println("Arquivo deletado");
                                     System.out.println("Atualize a sua lista");
                                     break;
@@ -233,12 +235,13 @@ public class Cliente implements Runnable {
                             Menu(5);
                         }
                         break;
-                    case "3":
+                    case "3": // opção de voltar
                         arquivoSelecionado = "";
                         Menu(3);
                         break;
                 }
                 break;
+                //caso exista mais de um ip, mesma logica descrita acima
             case 5:
                 socketCliente = new Socket(origens.get(Integer.parseInt(msg) - 1), portaServidor + 1);
                 PrintStream ps = new PrintStream(socketCliente.getOutputStream());
@@ -319,7 +322,7 @@ public class Cliente implements Runnable {
          #14 - MANDAR ARQUIVOS
          */
 
-        switch (menuAtual) {
+        switch (menuAtual) { // verifica em que estado está o sistema (menu)
             // Tratamento para o Menu Inicial
             case 0:
                 break;
@@ -356,7 +359,7 @@ public class Cliente implements Runnable {
                 break;
             // Tratamento para o Menu de Navegação 
             case 3:
-                if (mensagem[0].equals("#14")) {
+                if (mensagem[0].equals("#14")) { // atualiza a lista de arquivos
                     int quantidade = Integer.parseInt(mensagem[1]);
                     int i, posNome = 2, posIp = 3;
                     String nome, ip;
@@ -371,7 +374,7 @@ public class Cliente implements Runnable {
                     }
                     SalvarDadosArquivos();
                     Menu(3);
-                } else if (mensagem[0].equals("#06")) {
+                } else if (mensagem[0].equals("#06")) { // desloga a qualquer momento em caso de erro no log in via cache
                     System.out.println("Usuario já está logado");
                     Menu(0);
                 }
@@ -383,6 +386,13 @@ public class Cliente implements Runnable {
     }
 
     private void Menu(int menu) {
+        // Menu:
+        // 0 - inicial
+        // 1 - Log in
+        // 2 - Cadastro
+        // 3 - Navegação
+        // 4 - Arquivo
+        // 5 - Seleção de IP
         switch (menu) {
             case 0:
                 menuAtual = 0;
